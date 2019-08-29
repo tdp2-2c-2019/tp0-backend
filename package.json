@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon -r esm ./bin/www"
+    "start": "nodemon -r esm ./bin/www",
+    "debug": "nodemon --inspect -r esm ./bin/www"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
