@@ -40,24 +40,26 @@ router.get("/", (req, res) => {
     lon: Number(req.query.originLon)
   };
 
-  const filteredAtms = getAtms().then(atms => {
-    return atms.filter(atm => {
-      const destination = {
-        lat: Number(atm.lat),
-        lon: Number(atm.long)
-      };
-      const bankFilter = !bank || (bank && atm.banco.localeCompare(bank) === 0);
-      const networkFilter =
-        !network || (network && atm.red.localeCompare(network) === 0);
-      const distanceFilter =
-        (!distance && calculateDistance(origin, destination) < 0.5) ||
-        (distance && calculateDistance(origin, destination) < distance);
-      return bankFilter && networkFilter && distanceFilter;
+  getAtms()
+    .then(atms => {
+      return atms.filter(atm => {
+        const destination = {
+          lat: Number(atm.lat),
+          lon: Number(atm.long)
+        };
+        const bankFilter =
+          !bank || (bank && atm.banco.localeCompare(bank) === 0);
+        const networkFilter =
+          !network || (network && atm.red.localeCompare(network) === 0);
+        const distanceFilter =
+          (!distance && calculateDistance(origin, destination) < 0.5) ||
+          (distance && calculateDistance(origin, destination) < distance);
+        return bankFilter && networkFilter && distanceFilter;
+      });
+    })
+    .then(filteredAtms => {
+      res.send(filteredAtms);
     });
-  });
-  filteredAtms.then(atms => {
-    res.send(atms);
-  });
 });
 
 export default router;
