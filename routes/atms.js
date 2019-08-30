@@ -41,7 +41,7 @@ router.get("/", (req, res) => {
   };
 
   const filteredAtms = getAtms().then(atms => {
-    atms.filter(atm => {
+    return atms.filter(atm => {
       const destination = {
         lat: Number(atm.lat),
         lon: Number(atm.long)
@@ -54,7 +54,9 @@ router.get("/", (req, res) => {
         (distance && calculateDistance(origin, destination) < distance);
       return bankFilter && networkFilter && distanceFilter;
     });
-    res.send(filteredAtms);
+  });
+  filteredAtms.then(atms => {
+    res.send(atms);
   });
 });
 
