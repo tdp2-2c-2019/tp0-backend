@@ -3,6 +3,7 @@ import csv from "csvtojson";
 
 const router = Router();
 const csvFilePath = "cajeros-automaticos.csv";
+let preloadedAtms = null;
 
 const deg2rad = deg => deg * (Math.PI / 180);
 const calculateDistance = (origin, destination) => {
@@ -20,6 +21,17 @@ const calculateDistance = (origin, destination) => {
   return d;
 };
 
+async function getAtms() {
+  if (!preloadedAtms) {
+    await csv()
+      .fromFile(csvFilePath)
+      .then(jsonObj => {
+        preloadedAtms = jsonObj;
+      });
+  }
+  return preloadedAtms;
+}
+
 /* GET atms listing. */
 router.get("/", (req, res) => {
   const { bank, distance, network } = req.query;
@@ -27,25 +39,23 @@ router.get("/", (req, res) => {
     lat: Number(req.query.originLat),
     lon: Number(req.query.originLon)
   };
-  csv()
-    .fromFile(csvFilePath)
-    .then(jsonObj => {
-      const filteredAtms = jsonObj.filter(atm => {
-        const destination = {
-          lat: Number(atm.lat),
-          lon: Number(atm.long)
-        };
-        const bankFilter =
-          !bank || (bank && atm.banco.localeCompare(bank) === 0);
-        const networkFilter =
-          !network || (network && atm.red.localeCompare(network) === 0);
-        const distanceFilter =
-          (!distance && calculateDistance(origin, destination) < 0.5) ||
-          (distance && calculateDistance(origin, destination) < distance);
-        return bankFilter && networkFilter && distanceFilter;
-      });
-      res.send(filteredAtms);
+
+  const filteredAtms = getAtms().then(atms => {
+    atms.filter(atm => {
+      const destination = {
+        lat: Number(atm.lat),
+        lon: Number(atm.long)
+      };
+      const bankFilter = !bank || (bank && atm.banco.localeCompare(bank) === 0);
+      const networkFilter =
+        !network || (network && atm.red.localeCompare(network) === 0);
+      const distanceFilter =
+        (!distance && calculateDistance(origin, destination) < 0.5) ||
+        (distance && calculateDistance(origin, destination) < distance);
+      return bankFilter && networkFilter && distanceFilter;
     });
+    res.send(filteredAtms);
+  });
 });
 
 export default router;
