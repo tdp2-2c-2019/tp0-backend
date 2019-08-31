@@ -62,4 +62,32 @@ router.get("/", (req, res) => {
     });
 });
 
+/* GET banks listing */
+router.get("/banks", (req, res) => {
+  getAtms()
+    .then(atms => {
+      return atms.map(atm => {
+        return atm.banco;
+      });
+    })
+    .then(bankNames => {
+      const bankSet = new Set(bankNames);
+      res.send([...bankSet]);
+    });
+});
+
+/* GET networks listing */
+router.get("/networks", (req, res) => {
+  getAtms()
+    .then(atms => {
+      return atms.map(atm => {
+        return atm.red;
+      });
+    })
+    .then(networks => {
+      const networkSet = new Set(networks);
+      res.send([...networkSet]);
+    });
+});
+
 export default router;
