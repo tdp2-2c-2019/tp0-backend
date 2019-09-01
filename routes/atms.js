@@ -64,7 +64,14 @@ router.get("/", (req, res) => {
 
 /* GET banks listing */
 router.get("/banks", (req, res) => {
+  const { network } = req.query;
   getAtms()
+    .then(atms => {
+      if (network) {
+        return atms.filter(atm => atm.red.localeCompare(network) === 0);
+      }
+      return atms;
+    })
     .then(atms => {
       return atms.map(atm => {
         return atm.banco;
