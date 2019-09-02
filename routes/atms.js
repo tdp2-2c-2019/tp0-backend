@@ -79,7 +79,7 @@ router.get("/banks", (req, res) => {
     })
     .then(bankNames => {
       const bankSet = new Set(bankNames);
-      res.send([...bankSet]);
+      res.send([...bankSet].sort());
     });
 });
 
@@ -93,7 +93,7 @@ router.get("/networks", (req, res) => {
     })
     .then(networks => {
       const networkSet = new Set(networks);
-      res.send([...networkSet]);
+      res.send([...networkSet].sort());
     });
 });
 
